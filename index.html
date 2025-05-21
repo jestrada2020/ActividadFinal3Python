@@ -1,0 +1,2008 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cuestionario Interactivo: Python, Pandas y DataFrames</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --color-primary: #4C51BF;
+            --color-secondary: #48BB78;
+            --color-accent: #ED8936;
+            --color-danger: #F56565;
+            --color-warning: #ECC94B;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f7fafc;
+            color: #2d3748;
+        }
+        
+        .container {
+            max-width: 1000px;
+            padding: 20px;
+        }
+        
+        .card {
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .code-block {
+            font-family: 'Courier New', Courier, monospace;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 0.5rem;
+            background-color: #2d3748;
+            color: #e2e8f0;
+            overflow-x: auto;
+            line-height: 1.5;
+            white-space: pre;
+        }
+        
+        .option-hover:hover {
+            background-color: #f0f4f8;
+        }
+
+        .option-selected {
+            background-color: #e2e8f0;
+            border-left: 4px solid var(--color-primary);
+        }
+
+        .option-correct {
+            background-color: rgba(72, 187, 120, 0.2);
+            border-left: 4px solid var(--color-secondary);
+        }
+
+        .option-incorrect {
+            background-color: rgba(245, 101, 101, 0.2);
+            border-left: 4px solid var(--color-danger);
+        }
+
+        .difficulty-badge-basic {
+            background-color: #4299e1;
+        }
+        
+        .difficulty-badge-intermediate {
+            background-color: #805ad5;
+        }
+        
+        .difficulty-badge-advanced {
+            background-color: #e53e3e;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s;
+        }
+
+        .code-highlight {
+            background-color: rgba(236, 201, 75, 0.2);
+            border-bottom: 2px solid var(--color-warning);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Para visualizaciones de DataFrames */
+        .dataframe {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+        }
+        
+        .dataframe th {
+            background-color: #4C51BF;
+            color: white;
+            text-align: left;
+            padding: 8px;
+        }
+        
+        .dataframe td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        
+        .dataframe tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        /* Progress bar */
+        .progress-bar {
+            height: 10px;
+            background-color: #e2e8f0;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        
+        .progress {
+            height: 10px;
+            background-color: var(--color-primary);
+            border-radius: 5px;
+            transition: width 0.3s ease;
+        }
+
+        /* Añade espacio entre preguntas para mejorar legibilidad en PDF */
+        .question-container {
+            margin-bottom: 2rem;
+            page-break-inside: avoid;
+        }
+
+        /* Asegura que las tablas de DataFrames no se corten */
+        .dataframe-container {
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        /* Visualización para diferentes elementos de pandas */
+        .pandas-visual {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="text-center mb-10">
+            <h1 class="text-4xl font-bold text-indigo-800 mb-2">Cuestionario Interactivo</h1>
+            <h2 class="text-2xl font-semibold text-gray-600">Python, Pandas y DataFrames</h2>
+            <div class="mt-4 flex justify-center">
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-500 text-white mx-1">
+                    <i class="fas fa-laptop-code mr-1"></i> 35 Preguntas
+                </span>
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-500 text-white mx-1">
+                    <i class="fas fa-star mr-1"></i> 50 Puntos
+                </span>
+                <span id="difficulty-filter" class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-500 text-white mx-1 cursor-pointer">
+                    <i class="fas fa-filter mr-1"></i> Filtrar por dificultad
+                </span>
+            </div>
+        </header>
+
+        <!-- Intro section -->
+        <div id="intro-section" class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h3 class="text-xl font-semibold mb-3">¡Bienvenido a tu práctica interactiva de Python y Pandas!</h3>
+            <p class="mb-4">Este cuestionario te ayudará a dominar los conceptos fundamentales de Python y la manipulación de datos con la biblioteca Pandas, con especial enfoque en los DataFrames.</p>
+            
+            <div class="grid md:grid-cols-3 gap-4 my-6">
+                <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
+                    <h4 class="font-bold text-blue-700"><i class="fas fa-baby mr-2"></i>Nivel Básico</h4>
+                    <p>15 preguntas • 1 punto cada una</p>
+                </div>
+                <div class="bg-purple-50 p-4 rounded-lg border-l-4 border-purple-500">
+                    <h4 class="font-bold text-purple-700"><i class="fas fa-user-graduate mr-2"></i>Nivel Intermedio</h4>
+                    <p>10 preguntas • 2 puntos cada una</p>
+                </div>
+                <div class="bg-red-50 p-4 rounded-lg border-l-4 border-red-500">
+                    <h4 class="font-bold text-red-700"><i class="fas fa-dragon mr-2"></i>Nivel Avanzado</h4>
+                    <p>10 preguntas • 1.5 puntos cada una</p>
+                </div>
+            </div>
+
+            <div class="mt-6 text-center">
+                <button id="start-button" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 shadow-lg hover:shadow-xl">
+                    Comenzar cuestionario <i class="fas fa-arrow-right ml-2"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Quiz interface (hidden initially) -->
+        <div id="quiz-container" class="hidden">
+            <!-- Score and progress -->
+            <div class="fixed bottom-0 left-0 right-0 bg-white shadow-md p-4 flex justify-between items-center">
+                <div class="flex items-center">
+                    <span class="text-lg font-bold mr-2">Puntuación:</span>
+                    <span id="score-display" class="text-xl font-bold text-indigo-600">0</span>
+                    <span class="mx-1">/</span>
+                    <span id="total-score" class="text-lg">50</span>
+                </div>
+                
+                <div class="flex-grow mx-4">
+                    <div class="progress-bar">
+                        <div id="progress" class="progress" style="width: 0%"></div>
+                    </div>
+                </div>
+                
+                <div class="flex items-center">
+                    <span class="text-lg font-bold mr-2">Pregunta:</span>
+                    <span id="question-number" class="text-xl font-bold text-indigo-600">0</span>
+                    <span class="mx-1">/</span>
+                    <span id="total-questions" class="text-lg">35</span>
+                </div>
+            </div>
+
+            <div id="questions-container" class="mb-24">
+                <!-- Questions will be inserted here -->
+            </div>
+
+            <!-- Result section (hidden initially) -->
+            <div id="result-section" class="hidden bg-white rounded-lg shadow-md p-6 mb-8 text-center">
+                <h3 class="text-2xl font-bold mb-4">¡Has completado el cuestionario!</h3>
+                <div class="text-5xl font-bold my-6">
+                    <span id="final-score" class="text-indigo-600">0</span>
+                    <span class="text-gray-600">/50</span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8 mb-6">
+                    <div class="p-4 bg-blue-50 rounded-lg">
+                        <h4 class="font-bold text-blue-700">Nivel Básico</h4>
+                        <p class="text-xl"><span id="basic-score">0</span>/<span id="basic-total">15</span> puntos</p>
+                    </div>
+                    <div class="p-4 bg-purple-50 rounded-lg">
+                        <h4 class="font-bold text-purple-700">Nivel Intermedio</h4>
+                        <p class="text-xl"><span id="intermediate-score">0</span>/<span id="intermediate-total">20</span> puntos</p>
+                    </div>
+                    <div class="p-4 bg-red-50 rounded-lg">
+                        <h4 class="font-bold text-red-700">Nivel Avanzado</h4>
+                        <p class="text-xl"><span id="advanced-score">0</span>/<span id="advanced-total">15</span> puntos</p>
+                    </div>
+                </div>
+
+                <div id="performance-feedback" class="text-lg my-6 p-4 bg-gray-50 rounded-lg"></div>
+
+                <div class="mt-8">
+                    <button id="review-button" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 mr-4">
+                        Revisar respuestas <i class="fas fa-search ml-2"></i>
+                    </button>
+                    <button id="restart-button" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300">
+                        Reintentar cuestionario <i class="fas fa-redo ml-2"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Global variables
+            let currentQuestionIndex = 0;
+            let score = 0;
+            let userAnswers = [];
+            let scoreByCategoryBasic = 0;
+            let scoreByCategoryIntermediate = 0;
+            let scoreByCategoryAdvanced = 0;
+
+            // Questions array
+            const questions = [
+                // Nivel Básico (15 preguntas, 1 punto cada una)
+                {
+                    id: 1,
+                    question: "¿Cuál es la manera correcta de importar la biblioteca pandas?",
+                    options: [
+                        "import pandas as pd",
+                        "import pandas",
+                        "from pandas import *",
+                        "include pandas"
+                    ],
+                    correctAnswer: 0,
+                    explanation: "La convención estándar es importar pandas con el alias pd para facilitar su uso: <code>import pandas as pd</code>",
+                    difficulty: "basic",
+                    points: 1
+                },
+                {
+                    id: 2,
+                    question: "¿Qué estructura de datos básica se utiliza en pandas para manejar datos tabulares (filas y columnas)?",
+                    options: [
+                        "Array",
+                        "Series",
+                        "DataFrame",
+                        "Matrix"
+                    ],
+                    correctAnswer: 2,
+                    explanation: "Un DataFrame es la estructura principal de pandas para manejar datos tabulares con filas y columnas, similar a una tabla SQL o una hoja de cálculo.",
+                    difficulty: "basic",
+                    points: 1
+                },
+                {
+                    id: 3,
+                    question: "¿Cómo se crea un DataFrame vacío en pandas?",
+                    options: [
+                        "pd.DataFrame()",
+                        "pd.create_dataframe()",
+                        "pd.new_dataframe()",
+                        "pd.empty_frame()"
+                    ],
+                    correctAnswer: 0,
+                    explanation: "Para crear un DataFrame vacío, simplemente se utiliza el constructor <code>pd.DataFrame()</code> sin argumentos.",
+                    difficulty: "basic",
+                    points: 1,
+                    code: "import pandas as pd\n\n# Crear un DataFrame vacío\ndf = pd.DataFrame()\nprint(df)"
+                },
+                {
+                    id: 4,
+                    question: "¿Qué método se utiliza para ver las primeras filas de un DataFrame?",
+                    options: [
+                        "df.start()",
+                        "df.head()",
+                        "df.first()",
+                        "df.top()"
+                    ],
+                    correctAnswer: 1,
+                    explanation: "El método <code>head()</code> muestra las primeras 5 filas por defecto, aunque se puede especificar un número diferente: <code>df.head(10)</code>",
+                    difficulty: "basic",
+                    points: 1,
+                    visual: "dataframe-head"
+                },
+                {
+                    id: 5,
+                    question: "¿Cómo se crean columnas categóricas en pandas?",
+                    options: [
+                        "df['columna'] = pd.category(lista)",
+                        "df['columna'] = lista.as_category()",
+                        "df['columna'] = pd.Categorical(lista)",
+                        "df.create_category('columna', lista)"
+                    ],
+                    correctAnswer: 2,
+                    explanation: "Para crear una columna categórica, se utiliza <code>pd.Categorical()</code> que convierte los datos en un tipo categórico.",
+                    difficulty: "basic",
+                    points: 1,
+                    code: "import pandas as pd\n\n# Crear un DataFrame con una columna categórica\ndf = pd.DataFrame({\n    'nombre': ['Ana', 'Carlos', 'Elena'],\n    'grupo': pd.Categorical(['A', 'B', 'A'])\n})\nprint(df.dtypes)"
+                },
+                {
+                    id: 6,
+                    question: "¿Cuál es el tipo de datos que pandas utiliza para representar fechas?",
+                    options: [
+                        "date",
+                        "datetime",
+                        "timestamp",
+                        "datetime64"
+                    ],
+                    correctAnswer: 3,
+                    explanation: "Pandas utiliza el tipo de datos <code>datetime64</code> para representar fechas y horas, que está basado en NumPy.",
+                    difficulty: "basic",
+                    points: 1
+                },
+                {
+                    id: 7,
+                    question: "¿Qué función se utiliza para leer un archivo CSV en pandas?",
+                    options: [
+                        "pd.read_csv()",
+                        "pd.load_csv()",
+                        "pd.import_csv()",
+                        "pd.csv_reader()"
+                    ],
+                    correctAnswer: 0,
+                    explanation: "La función <code>pd.read_csv()</code> es la estándar para leer archivos CSV en pandas.",
+                    difficulty: "basic",
+                    points: 1,
+                    code: "import pandas as pd\n\n# Leer un archivo CSV\ndf = pd.read_csv('datos.csv')"
+                },
+                {
+                    id: 8,
+                    question: "¿Cómo se selecciona una columna específica en un DataFrame?",
+                    options: [
+                        "df.get_column('nombre')",
+                        "df['nombre']",
+                        "df.nombre",
+                        "Las opciones B y C son correctas"
+                    ],
+                    correctAnswer: 3,
+                    explanation: "Se puede acceder a una columna tanto con la notación de diccionario <code>df['nombre']</code> como con la notación de punto <code>df.nombre</code>, aunque la primera es más segura y flexible.",
+                    difficulty: "basic",
+                    points: 1,
+                    visual: "column-selection"
+                },
+                {
+                    id: 9,
+                    question: "¿Qué método se utiliza para ver información básica de un DataFrame como tipos de datos, valores no nulos, etc.?",
+                    options: [
+                        "df.describe()",
+                        "df.info()",
+                        "df.summary()",
+                        "df.details()"
+                    ],
+                    correctAnswer: 1,
+                    explanation: "El método <code>df.info()</code> proporciona un resumen conciso del DataFrame que incluye el tipo de datos de cada columna y el número de valores no nulos.",
+                    difficulty: "basic",
+                    points: 1,
+                    visual: "dataframe-info"
+                },
+                {
+                    id: 10,
+                    question: "¿Qué significa el atributo shape en un DataFrame?",
+                    options: [
+                        "La forma geométrica del DataFrame cuando se visualiza",
+                        "Una tupla con el número de filas y columnas (filas, columnas)",
+                        "El formato de los datos en cada columna",
+                        "La estructura de los índices del DataFrame"
+                    ],
+                    correctAnswer: 1,
+                    explanation: "El atributo <code>shape</code> devuelve una tupla con el número de filas y columnas del DataFrame: <code>(n_filas, n_columnas)</code>",
+                    difficulty: "basic",
+                    points: 1,
+                    code: "import pandas as pd\n\ndf = pd.DataFrame({\n    'A': [1, 2, 3],\n    'B': ['x', 'y', 'z']\n})\n\nprint(f\"Dimensiones del DataFrame: {df.shape}\")"
+                },
+                {
+                    id: 11,
+                    question: "¿Cuál de estos NO es un tipo de datos válido en pandas?",
+                    options: [
+                        "float64",
+                        "object",
+                        "varchar",
+                        "datetime64[ns]"
+                    ],
+                    correctAnswer: 2,
+                    explanation: "Pandas no tiene un tipo de datos llamado 'varchar'. Este término se usa en SQL, pero en pandas los datos de texto generalmente se almacenan como 'object' o 'string'.",
+                    difficulty: "basic",
+                    points: 1
+                },
+                {
+                    id: 12,
+                    question: "¿Qué método se utiliza para eliminar filas con valores nulos?",
+                    options: [
+                        "df.delete_na()",
+                        "df.drop_na()",
+                        "df.dropna()",
+                        "df.remove_na()"
+                    ],
+                    correctAnswer: 2,
+                    explanation: "El método <code>dropna()</code> se utiliza para eliminar filas que contienen valores nulos en un DataFrame.",
+                    difficulty: "basic",
+                    points: 1,
+                    code: "import pandas as pd\n\ndf = pd.DataFrame({\n    'A': [1, 2, None, 4],\n    'B': [5, None, 7, 8]\n})\n\nprint(\"DataFrame original:\")\nprint(df)\n\ndf_limpio = df.dropna()\nprint(\"\\nDataFrame sin valores nulos:\")\nprint(df_limpio)"
+                },
+                {
+                    id: 13,
+                    question: "¿Qué método se utiliza para reemplazar valores nulos con un valor específico?",
+                    options: [
+                        "df.fillna(valor)",
+                        "df.replace_null(valor)",
+                        "df.fill_null(valor)",
+                        "df.replace_na(valor)"
+                    ],
+                    correctAnswer: 0,
+                    explanation: "El método <code>fillna()</code> permite reemplazar los valores nulos con un valor específico o utilizando diferentes estrategias.",
+                    difficulty: "basic",
+                    points: 1,
+                    code: "import pandas as pd\n\ndf = pd.DataFrame({\n    'A': [1, 2, None, 4],\n    'B': [5, None, 7, 8]\n})\n\nprint(\"DataFrame original:\")\nprint(df)\n\ndf_rellenado = df.fillna(0)\nprint(\"\\nDataFrame con valores nulos reemplazados por 0:\")\nprint(df_rellenado)"
+                },
+                {
+                    id: 14,
+                    question: "¿Cómo se accede a una fila específica en un DataFrame utilizando su índice?",
+                    options: [
+                        "df.row(5)",
+                        "df.get_row(5)",
+                        "df.loc[5]",
+                        "df.iloc[5]"
+                    ],
+                    correctAnswer: 2,
+                    explanation: "Se utiliza <code>df.loc[índice]</code> para acceder a una fila por su etiqueta de índice. Si quieres acceder por posición numérica (como la sexta fila), debes usar <code>df.iloc[5]</code>.",
+                    difficulty: "basic",
+                    points: 1,
+                    visual: "row-selection"
+                },
+                {
+                    id: 15,
+                    question: "¿Qué significa la expresión df.iloc[2:5, 1:3]?",
+                    options: [
+                        "Selecciona las filas 2 a 5 y las columnas 1 a 3",
+                        "Selecciona las filas 2, 3, 4 y las columnas 1, 2",
+                        "Selecciona las filas 2 y 5, y las columnas 1 y 3",
+                        "Selecciona las celdas en las posiciones (2,1), (2,3), (5,1) y (5,3)"
+                    ],
+                    correctAnswer: 1,
+                    explanation: "Con <code>iloc</code>, los rangos funcionan como en Python estándar: el primer índice está incluido y el último excluido. Así, <code>2:5</code> selecciona las posiciones 2, 3 y 4; y <code>1:3</code> selecciona las posiciones 1 y 2.",
+                    difficulty: "basic",
+                    points: 1,
+                    visual: "iloc-selection"
+                },
+                
+                // Nivel Intermedio (10 preguntas, 2 puntos cada una)
+                {
+                    id: 16,
+                    question: "¿Cuál es la diferencia principal entre loc y iloc en pandas?",
+                    options: [
+                        "loc es más rápido que iloc para grandes conjuntos de datos",
+                        "loc selecciona por posición numérica mientras que iloc selecciona por etiqueta",
+                        "loc selecciona por etiqueta mientras que iloc selecciona por posición numérica",
+                        "loc solo funciona con índices numéricos mientras que iloc funciona con cualquier tipo de índice"
+                    ],
+                    correctAnswer: 2,
+                    explanation: "<code>loc</code> selecciona datos basándose en las etiquetas de los índices, mientras que <code>iloc</code> selecciona datos basándose en la posición numérica (0, 1, 2, etc.).",
+                    difficulty: "intermediate",
+                    points: 2,
+                    code: "import pandas as pd\n\ndf = pd.DataFrame({\n    'A': [1, 2, 3],\n    'B': [4, 5, 6],\n    'C': [7, 8, 9]\n}, index=['fila1', 'fila2', 'fila3'])\n\nprint(\"Selección por etiqueta (loc):\")\nprint(df.loc['fila1'])\n\nprint(\"\\nSelección por posición (iloc):\")\nprint(df.iloc[0])"
+                },
+                {
+                    id: 17,
+                    question: "¿Qué método se utiliza para agrupar datos en un DataFrame?",
+                    options: [
+                        "df.cluster()",
+                        "df.group()",
+                        "df.groupby()",
+                        "df.aggregate()"
+                    ],
+                    correctAnswer: 2,
+                    explanation: "El método <code>groupby()</code> se utiliza para agrupar datos según valores de una o más columnas y aplicar funciones de agregación como sum(), mean(), etc.",
+                    difficulty: "intermediate",
+                    points: 2,
+                    visual: "groupby-example"
+                },
+                {
+                    id: 18,
+                    question: "¿Qué hace la función pd.merge()?",
+                    options: [
+                        "Combina dos DataFrames basándose en una columna o índice común",
+                        "Fusiona múltiples columnas en una sola",
+                        "Concatena dos DataFrames horizontalmente",
+                        "Une varios DataFrames en uno solo ordenando sus valores"
+                    ],
+                    correctAnswer: 0,
+                    explanation: "La función <code>pd.merge()</code> permite combinar dos DataFrames basándose en columnas o índices comunes, similar a un JOIN en SQL.",
+                    difficulty: "intermediate",
+                    points: 2,
+                    code: "import pandas as pd\n\n# Crear dos DataFrames\ndf1 = pd.DataFrame({\n    'id': [1, 2, 3],\n    'nombre': ['Ana', 'Carlos', 'Diana']\n})\n\ndf2 = pd.DataFrame({\n    'id': [1, 2, 4],\n    'edad': [25, 30, 35]\n})\n\n# Combinar los DataFrames por la columna 'id'\ndf_combinado = pd.merge(df1, df2, on='id')\nprint(df_combinado)"
+                },
+                {
+                    id: 19,
+                    question: "¿Cuál de las siguientes NO es una operación que se puede aplicar tras un groupby()?",
+                    options: [
+                        "sum()",
+                        "mean()",
+                        "sort()",
+                        "count()"
+                    ],
+                    correctAnswer: 2,
+                    explanation: "Después de un <code>groupby()</code> no se utiliza <code>sort()</code> sino <code>sort_values()</code>. Las funciones comunes son: sum(), mean(), count(), min(), max(), etc.",
+                    difficulty: "intermediate",
+                    points: 2,
+                    visual: "groupby-operations"
+                },
+                {
+                    id: 20,
+                    question: "¿Qué hace el método pivot_table() en un DataFrame?",
+                    options: [
+                        "Ordena el DataFrame por múltiples columnas",
+                        "Reorganiza un DataFrame para crear tablas de resumen",
+                        "Invierte filas y columnas del DataFrame",
+                        "Normaliza los datos del DataFrame"
+                    ],
+                    correctAnswer: 1,
+                    explanation: "El método <code>pivot_table()</code> crea una tabla dinámica (similar a Excel) que resume los datos mediante funciones de agregación. Permite reorganizar los datos para análisis multidimensionales.",
+                    difficulty: "intermediate",
+                    points: 2,
+                    visual: "pivot-table"
+                },
+                {
+                    id: 21,
+                    question: "¿Cómo se crea una nueva columna en un DataFrame basada en los valores de columnas existentes?",
+                    options: [
+                        "df.add_column('nueva_col', df['col1'] + df['col2'])",
+                        "df.create_column('nueva_col', lambda x: x['col1'] + x['col2'])",
+                        "df['nueva_col'] = df['col1'] + df['col2']",
+                        "df = df.with_column('nueva_col', df['col1'] + df['col2'])"
+                    ],
+                    correctAnswer: 2,
+                    explanation: "La forma más directa es asignar el resultado de la operación a una nueva columna: <code>df['nueva_col'] = df['col1'] + df['col2']</code>",
+                    difficulty: "intermediate",
+                    points: 2,
+                    code: "import pandas as pd\n\ndf = pd.DataFrame({\n    'A': [1, 2, 3],\n    'B': [4, 5, 6]\n})\n\n# Crear una nueva columna que es la suma de A y B\ndf['C'] = df['A'] + df['B']\nprint(df)"
+                },
+                {
+                    id: 22,
+                    question: "¿Qué función se utiliza para detectar y eliminar filas duplicadas en un DataFrame?",
+                    options: [
+                        "df.remove_duplicates()",
+                        "df.unique()",
+                        "df.drop_duplicates()",
+                        "df.delete_duplicates()"
+                    ],
+                    correctAnswer: 2,
+                    explanation: "El método <code>drop_duplicates()</code> identifica y elimina filas duplicadas en un DataFrame, manteniendo la primera ocurrencia por defecto.",
+                    difficulty: "intermediate",
+                    points: 2,
+                    code: "import pandas as pd\n\ndf = pd.DataFrame({\n    'A': [1, 2, 1, 3],\n    'B': ['a', 'b', 'a', 'c']\n})\n\nprint(\"DataFrame original:\")\nprint(df)\n\ndf_sin_duplicados = df.drop_duplicates()\nprint(\"\\nDataFrame sin duplicados:\")\nprint(df_sin_duplicados)"
+                },
+                {
+                    id: 23,
+                    question: "¿Qué método se utiliza para aplicar una función personalizada a cada elemento de un DataFrame?",
+                    options: [
+                        "df.transform()",
+                        "df.map()",
+                        "df.apply()",
+                        "df.each()"
+                    ],
+                    correctAnswer: 2,
+                    explanation: "El método <code>apply()</code> permite aplicar una función a lo largo de un eje del DataFrame (0 para columnas, 1 para filas) o elemento por elemento.",
+                    difficulty: "intermediate",
+                    points: 2,
+                    code: "import pandas as pd\n\ndf = pd.DataFrame({\n    'A': [1, 2, 3],\n    'B': [4, 5, 6]\n})\n\n# Aplicar una función personalizada a cada columna\ndef duplicar(columna):\n    return columna * 2\n\ndf_duplicado = df.apply(duplicar)\nprint(df_duplicado)"
+                },
+                {
+                    id: 24,
+                    question: "¿Qué parámetro se utiliza en pd.read_csv() para especificar cómo manejar los valores ausentes?",
+                    options: [
+                        "missing_values",
+                        "na_values",
+                        "null_values",
+                        "empty_values"
+                    ],
+                    correctAnswer: 1,
+                    explanation: "El parámetro <code>na_values</code> en <code>pd.read_csv()</code> permite especificar valores adicionales que deben ser tratados como NaN (además de los que pandas reconoce por defecto).",
+                    difficulty: "intermediate",
+                    points: 2,
+                    code: "import pandas as pd\n\n# Leer un CSV tratando 'N/D' como valores nulos\ndf = pd.read_csv('datos.csv', na_values=['N/D', 'NA', ''])"
+                },
+                {
+                    id: 25,
+                    question: "¿Qué hace el método melt() en pandas?",
+                    options: [
+                        "Convierte un DataFrame de formato ancho a formato largo",
+                        "Fusiona dos DataFrames basándose en una columna común",
+                        "Elimina filas con valores nulos",
+                        "Reduce el tamaño del DataFrame eliminando columnas redundantes"
+                    ],
+                    correctAnswer: 0,
+                    explanation: "El método <code>melt()</code> transforma un DataFrame de formato ancho (con muchas columnas) a formato largo (con menos columnas pero más filas), útil para análisis y visualización.",
+                    difficulty: "intermediate",
+                    points: 2,
+                    visual: "melt-example"
+                },
+                
+                // Nivel Avanzado (10 preguntas, 1.5 puntos cada una)
+                {
+                    id: 26,
+                    question: "¿Qué ventaja tiene usar una MultiIndex en un DataFrame?",
+                    options: [
+                        "Mejora el rendimiento de las operaciones de filtrado",
+                        "Permite representar datos con múltiples niveles de jerarquía",
+                        "Reduce el tamaño del DataFrame en memoria",
+                        "Facilita la exportación a formatos como CSV o Excel"
+                    ],
+                    correctAnswer: 1,
+                    explanation: "Un MultiIndex (índice jerárquico) permite representar datos con múltiples niveles de jerarquía en filas o columnas, lo que facilita el análisis multidimensional y las operaciones de agrupación complejas.",
+                    difficulty: "advanced",
+                    points: 1.5,
+                    visual: "multiindex-example"
+                },
+                {
+                    id: 27,
+                    question: "¿Cuál es el propósito del método pipe() en pandas?",
+                    options: [
+                        "Unir múltiples DataFrames horizontalmente", 
+                        "Aplicar transformaciones encadenadas con funciones personalizadas",
+                        "Crear flujos de datos entre DataFrames",
+                        "Paralelizar operaciones en múltiples núcleos"
+                    ],
+                    correctAnswer: 1,
+                    explanation: "El método <code>pipe()</code> permite encadenar métodos que toman y devuelven DataFrames de manera más legible, siguiendo el patrón de tuberías (pipeline) para componer operaciones complejas.",
+                    difficulty: "advanced",
+                    points: 1.5,
+                    code: "import pandas as pd\n\n# Definir funciones para transformar datos\ndef filtrar_adultos(df):\n    return df[df['edad'] >= 18]\n\ndef calcular_imc(df):\n    df['imc'] = df['peso'] / ((df['altura']/100) ** 2)\n    return df\n\n# Cargar datos y aplicar transformaciones con pipe\ndf = pd.DataFrame({\n    'nombre': ['Ana', 'Luis', 'Clara', 'Pedro'],\n    'edad': [25, 16, 30, 42],\n    'peso': [65, 58, 72, 80],\n    'altura': [165, 160, 170, 175]\n})\n\nresultado = (df\n    .pipe(filtrar_adultos)\n    .pipe(calcular_imc))\n\nprint(resultado)"
+                },
+                {
+                    id: 28,
+                    question: "¿Qué es un DataFrame categórico en pandas y cuál es su principal ventaja?",
+                    options: [
+                        "Un DataFrame que solo contiene datos numéricos para análisis estadísticos",
+                        "Un DataFrame que utiliza el tipo de datos 'category' para reducir el consumo de memoria y mejorar el rendimiento",
+                        "Un DataFrame que clasifica automáticamente los datos en grupos estadísticamente significativos",
+                        "Un DataFrame que utiliza etiquetas en lugar de índices numéricos para acceder a los datos"
+                    ],
+                    correctAnswer: 1,
+                    explanation: "Un DataFrame categórico utiliza el tipo de datos 'category' para representar valores que se repiten (como países, tipos, etc.). Esto reduce significativamente el uso de memoria y mejora el rendimiento en ciertos cálculos y operaciones de agrupación.",
+                    difficulty: "advanced",
+                    points: 1.5,
+                    code: "import pandas as pd\n\n# Crear un DataFrame con datos categóricos\ndf = pd.DataFrame({\n    'nombre': ['Ana', 'Luis', 'Clara', 'Pedro', 'Ana', 'Luis'],\n    'país': ['España', 'México', 'Argentina', 'España', 'Chile', 'México']\n})\n\n# Convertir la columna 'país' a tipo categórico\ndf['país'] = df['país'].astype('category')\n\nprint(df.dtypes)\nprint(df['país'].cat.categories)"
+                },
+                {
+                    id: 29,
+                    question: "¿Cómo se puede realizar una operación de ventana deslizante (rolling window) en pandas?",
+                    options: [
+                        "df.window(window_size).mean()",
+                        "df.sliding(window_size).mean()",
+                        "df.rolling(window_size).mean()",
+                        "df.shift(window_size).mean()"
+                    ],
+                    correctAnswer: 2,
+                    explanation: "El método <code>rolling()</code> permite aplicar funciones a ventanas deslizantes de tamaño especificado, útil para cálculos como medias móviles, sumas acumulativas, etc.",
+                    difficulty: "advanced",
+                    points: 1.5,
+                    visual: "rolling-window"
+                },
+                {
+                    id: 30,
+                    question: "¿Qué método se utiliza para realizar operaciones de resampling en series temporales con pandas?",
+                    options: [
+                        "df.timegroup()",
+                        "df.resample()",
+                        "df.timesample()",
+                        "df.frequency()"
+                    ],
+                    correctAnswer: 1,
+                    explanation: "El método <code>resample()</code> permite cambiar la frecuencia de series temporales, como agrupar datos diarios en mensuales o transformar datos horarios en diarios.",
+                    difficulty: "advanced",
+                    points: 1.5,
+                    code: "import pandas as pd\nimport numpy as np\n\n# Crear una serie temporal\nfechas = pd.date_range('2023-01-01', periods=100, freq='D')\nvalores = np.random.randn(100)\nts = pd.Series(valores, index=fechas)\n\n# Resamplear a frecuencia mensual\nts_mensual = ts.resample('M').mean()\nprint(ts_mensual.head())"
+                },
+                {
+                    id: 31,
+                    question: "¿Cuál de las siguientes expresiones utiliza correctamente una consulta condicional avanzada en pandas?",
+                    options: [
+                        "df.where(df['edad'] > 30 & df['salario'] > 50000)",
+                        "df.query('edad > 30 and salario > 50000')",
+                        "df[(df.edad > 30) and (df.salario > 50000)]",
+                        "df.filter('edad > 30 & salario > 50000')"
+                    ],
+                    correctAnswer: 1,
+                    explanation: "El método <code>query()</code> permite realizar consultas complejas usando una sintaxis similar a Python. Para usar operadores lógicos con corchetes se necesita usar & en lugar de and: <code>df[(df.edad > 30) & (df.salario > 50000)]</code>",
+                    difficulty: "advanced",
+                    points: 1.5,
+                    code: "import pandas as pd\n\ndf = pd.DataFrame({\n    'nombre': ['Ana', 'Luis', 'Clara', 'Pedro'],\n    'edad': [25, 35, 28, 42],\n    'salario': [30000, 60000, 45000, 55000]\n})\n\n# Usar query para filtrar\nresultado = df.query('edad > 30 and salario > 50000')\nprint(resultadO)"
+                },
+                {
+                    id: 32,
+                    question: "¿Qué clase de pandas proporciona funcionalidad para manejar datos faltantes en series temporales?",
+                    options: [
+                        "pd.TimeSeries",
+                        "pd.DatetimeIndex",
+                        "pd.TimeIndex",
+                        "pd.DatetimeProperties"
+                    ],
+                    correctAnswer: 1,
+                    explanation: "La clase <code>pd.DatetimeIndex</code> proporciona métodos especializados para trabajar con índices de fecha y hora, incluyendo funcionalidad para manejar datos faltantes, cambios de zona horaria y resampling.",
+                    difficulty: "advanced",
+                    points: 1.5,
+                    code: "import pandas as pd\nimport numpy as np\n\n# Crear un DatetimeIndex\ndti = pd.DatetimeIndex(['2023-01-01', '2023-01-02', '2023-01-04'])\n\n# Crear una serie con datos faltantes\nserie = pd.Series([100, 120, 140], index=dti)\n\n# Reindexar para incluir fechas faltantes\nidx_completo = pd.DatetimeIndex(pd.date_range('2023-01-01', '2023-01-05'))\nserie_completa = serie.reindex(idx_completo)\n\nprint(serie_completa)"
+                },
+                {
+                    id: 33,
+                    question: "¿Qué hace la función agg() después de una operación groupby?",
+                    options: [
+                        "Filtra resultados agregados basados en una condición",
+                        "Aplica diferentes funciones de agregación a diferentes columnas",
+                        "Calcula la agregación promedio de todas las columnas numéricas",
+                        "Realiza agregaciones jerárquicas en múltiples niveles"
+                    ],
+                    correctAnswer: 1,
+                    explanation: "El método <code>agg()</code> después de un <code>groupby()</code> permite aplicar diferentes funciones de agregación a diferentes columnas, lo que proporciona flexibilidad para análisis complejos.",
+                    difficulty: "advanced",
+                    points: 1.5,
+                    visual: "agg-example"
+                },
+                {
+                    id: 34,
+                    question: "¿Cómo se puede aplicar una función de agregación personalizada usando groupby en pandas?",
+                    options: [
+                        "df.groupby('columna').apply(lambda x: x.custom_function())",
+                        "df.groupby('columna').custom_function()",
+                        "df.groupby('columna').agg(lambda x: función_personalizada(x))",
+                        "df.groupby('columna').transform(función_personalizada)"
+                    ],
+                    correctAnswer: 2,
+                    explanation: "Se puede pasar una función personalizada al método <code>agg()</code> después de un <code>groupby()</code>, lo que permite realizar cálculos específicos para cada grupo.",
+                    difficulty: "advanced",
+                    points: 1.5,
+                    code: "import pandas as pd\n\ndf = pd.DataFrame({\n    'grupo': ['A', 'A', 'B', 'B', 'B'],\n    'valor': [10, 20, 30, 40, 50]\n})\n\n# Función personalizada que calcula el rango (max-min)\ndef rango(serie):\n    return serie.max() - serie.min()\n\n# Aplicar función personalizada a los grupos\nresultado = df.groupby('grupo').agg({'valor': rango})\nprint(resultado)"
+                },
+                {
+                    id: 35,
+                    question: "¿Qué método se utiliza para aplicar una función a cada grupo después de un groupby manteniendo la forma original del DataFrame?",
+                    options: [
+                        "groupby().map()",
+                        "groupby().apply()",
+                        "groupby().transform()",
+                        "groupby().each()"
+                    ],
+                    correctAnswer: 2,
+                    explanation: "El método <code>transform()</code> aplica una función a cada grupo pero devuelve un objeto con la misma forma que el DataFrame original, lo que facilita operaciones como normalización por grupo o cálculo de porcentajes relativos al grupo.",
+                    difficulty: "advanced",
+                    points: 1.5,
+                    code: "import pandas as pd\n\ndf = pd.DataFrame({\n    'grupo': ['A', 'A', 'B', 'B', 'B'],\n    'valor': [10, 20, 30, 40, 50]\n})\n\n# Calcular el porcentaje de cada valor respecto a la suma del grupo\ndf['porcentaje'] = df.groupby('grupo')['valor'].transform(lambda x: x / x.sum() * 100)\nprint(df)"
+                }
+            ];
+
+            // Elements
+            const startButton = document.getElementById('start-button');
+            const introSection = document.getElementById('intro-section');
+            const quizContainer = document.getElementById('quiz-container');
+            const questionsContainer = document.getElementById('questions-container');
+            const resultSection = document.getElementById('result-section');
+            const finalScore = document.getElementById('final-score');
+            const reviewButton = document.getElementById('review-button');
+            const restartButton = document.getElementById('restart-button');
+            const progressElement = document.getElementById('progress');
+            const questionNumberElement = document.getElementById('question-number');
+            const totalQuestionsElement = document.getElementById('total-questions');
+            const scoreDisplay = document.getElementById('score-display');
+            const basicScore = document.getElementById('basic-score');
+            const intermediateScore = document.getElementById('intermediate-score');
+            const advancedScore = document.getElementById('advanced-score');
+            const basicTotal = document.getElementById('basic-total');
+            const intermediateTotal = document.getElementById('intermediate-total');
+            const advancedTotal = document.getElementById('advanced-total');
+            const performanceFeedback = document.getElementById('performance-feedback');
+            const difficultyFilter = document.getElementById('difficulty-filter');
+
+            // Initialize
+            totalQuestionsElement.textContent = questions.length;
+
+            // Event listeners
+            startButton.addEventListener('click', startQuiz);
+            reviewButton.addEventListener('click', reviewAnswers);
+            restartButton.addEventListener('click', restartQuiz);
+            difficultyFilter.addEventListener('click', showDifficultyFilter);
+
+            // DataFrames visualizations
+            const dataframeVisuals = {
+                'dataframe-head': `
+                    <div class="pandas-visual">
+                        <h4 class="font-bold mb-2">Ejemplo de df.head()</h4>
+                        <div class="dataframe-container">
+                            <table class="dataframe">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th>nombre</th>
+                                        <th>edad</th>
+                                        <th>ciudad</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>0</td>
+                                        <td>Ana</td>
+                                        <td>28</td>
+                                        <td>Madrid</td>
+                                    </tr>
+                                    <tr>
+                                        <td>1</td>
+                                        <td>Luis</td>
+                                        <td>34</td>
+                                        <td>Barcelona</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2</td>
+                                        <td>Elena</td>
+                                        <td>22</td>
+                                        <td>Valencia</td>
+                                    </tr>
+                                    <tr>
+                                        <td>3</td>
+                                        <td>Pablo</td>
+                                        <td>45</td>
+                                        <td>Sevilla</td>
+                                    </tr>
+                                    <tr>
+                                        <td>4</td>
+                                        <td>María</td>
+                                        <td>31</td>
+                                        <td>Bilbao</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="mt-2 text-sm text-gray-600">
+                            <span class="font-semibold">df.head()</span> muestra las primeras 5 filas del DataFrame
+                        </div>
+                    </div>
+                `,
+                'column-selection': `
+                    <div class="pandas-visual">
+                        <h4 class="font-bold mb-2">Selección de columnas</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <p class="font-semibold mb-1">Código:</p>
+                                <div class="code-block text-sm">
+import pandas as pd
+
+df = pd.DataFrame({
+    'nombre': ['Ana', 'Luis', 'Elena'],
+    'edad': [28, 34, 22],
+    'ciudad': ['Madrid', 'Barcelona', 'Valencia']
+})
+
+# Dos maneras de seleccionar columnas
+col1 = df['nombre']
+col2 = df.edad
+
+print(col1)
+print(col2)</div>
+                            </div>
+                            <div>
+                                <p class="font-semibold mb-1">Resultado:</p>
+                                <div class="code-block text-sm">
+0      Ana
+1     Luis
+2    Elena
+Name: nombre, dtype: object
+
+0    28
+1    34
+2    22
+Name: edad, dtype: int64</div>
+                            </div>
+                        </div>
+                    </div>
+                `,
+                'dataframe-info': `
+                    <div class="pandas-visual">
+                        <h4 class="font-bold mb-2">Ejemplo de df.info()</h4>
+                        <div class="code-block text-sm">
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 5 entries, 0 to 4
+Data columns (total 3 columns):
+ #   Column  Non-Null Count  Dtype 
+---  ------  --------------  ----- 
+ 0   nombre  5 non-null      object
+ 1   edad    5 non-null      int64 
+ 2   ciudad  5 non-null      object
+dtypes: int64(1), object(2)
+memory usage: 248.0+ bytes</div>
+                        <div class="mt-2 text-sm text-gray-600">
+                            <span class="font-semibold">df.info()</span> proporciona un resumen con los tipos de datos y valores no nulos
+                        </div>
+                    </div>
+                `,
+                'row-selection': `
+                    <div class="pandas-visual">
+                        <h4 class="font-bold mb-2">Selección de filas</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <p class="font-semibold mb-1">Código:</p>
+                                <div class="code-block text-sm">
+import pandas as pd
+
+df = pd.DataFrame({
+    'nombre': ['Ana', 'Luis', 'Elena', 'Pablo'],
+    'edad': [28, 34, 22, 45]
+}, index=['p1', 'p2', 'p3', 'p4'])
+
+# Selección por etiqueta con loc
+fila1 = df.loc['p2']
+
+# Selección por posición con iloc
+fila2 = df.iloc[2]
+
+print("Selección con loc:")
+print(fila1)
+print("\nSelección con iloc:")
+print(fila2)</div>
+                            </div>
+                            <div>
+                                <p class="font-semibold mb-1">Resultado:</p>
+                                <div class="code-block text-sm">
+Selección con loc:
+nombre    Luis
+edad        34
+Name: p2, dtype: object
+
+Selección con iloc:
+nombre    Elena
+edad        22
+Name: p3, dtype: object</div>
+                            </div>
+                        </div>
+                    </div>
+                `,
+                'iloc-selection': `
+                    <div class="pandas-visual">
+                        <h4 class="font-bold mb-2">Selección con iloc[filas, columnas]</h4>
+                        <div class="grid grid-cols-1 gap-4">
+                            <div>
+                                <p class="font-semibold mb-1">DataFrame original:</p>
+                                <table class="dataframe">
+                                    <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th>A</th>
+                                            <th>B</th>
+                                            <th>C</th>
+                                            <th>D</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>0</td>
+                                            <td>a0</td>
+                                            <td>b0</td>
+                                            <td>c0</td>
+                                            <td>d0</td>
+                                        </tr>
+                                        <tr>
+                                            <td>1</td>
+                                            <td>a1</td>
+                                            <td>b1</td>
+                                            <td>c1</td>
+                                            <td>d1</td>
+                                        </tr>
+                                        <tr class="bg-yellow-100">
+                                            <td>2</td>
+                                            <td>a2</td>
+                                            <td class="bg-green-200 border border-green-500">b2</td>
+                                            <td class="bg-green-200 border border-green-500">c2</td>
+                                            <td>d2</td>
+                                        </tr>
+                                        <tr class="bg-yellow-100">
+                                            <td>3</td>
+                                            <td>a3</td>
+                                            <td class="bg-green-200 border border-green-500">b3</td>
+                                            <td class="bg-green-200 border border-green-500">c3</td>
+                                            <td>d3</td>
+                                        </tr>
+                                        <tr class="bg-yellow-100">
+                                            <td>4</td>
+                                            <td>a4</td>
+                                            <td class="bg-green-200 border border-green-500">b4</td>
+                                            <td class="bg-green-200 border border-green-500">c4</td>
+                                            <td>d4</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <div class="mt-4">
+                                    <p class="font-semibold">df.iloc[2:5, 1:3] selecciona:</p>
+                                    <ul class="list-disc list-inside">
+                                        <li>Filas de índice 2, 3 y 4 (resaltadas en amarillo)</li>
+                                        <li>Columnas de índice 1 y 2, que son B y C (resaltadas en verde)</li>
+                                    </ul>
+                                    <div class="code-block text-sm mt-2">
+df.iloc[2:5, 1:3]
+# Resultado:
+#     B   C
+# 2  b2  c2
+# 3  b3  c3
+# 4  b4  c4</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `,
+                'groupby-example': `
+                    <div class="pandas-visual">
+                        <h4 class="font-bold mb-2">Ejemplo de groupby()</h4>
+                        <div class="grid grid-cols-1 gap-4">
+                            <div>
+                                <p class="font-semibold mb-1">DataFrame original:</p>
+                                <table class="dataframe">
+                                    <thead>
+                                        <tr>
+                                            <th>nombre</th>
+                                            <th>departamento</th>
+                                            <th>salario</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Ana</td>
+                                            <td>Ventas</td>
+                                            <td>3000</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Luis</td>
+                                            <td>IT</td>
+                                            <td>4500</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Elena</td>
+                                            <td>Ventas</td>
+                                            <td>3200</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Carlos</td>
+                                            <td>IT</td>
+                                            <td>4800</td>
+                                        </tr>
+                                        <tr>
+                                            <td>María</td>
+                                            <td>RRHH</td>
+                                            <td>3600</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Pablo</td>
+                                            <td>Ventas</td>
+                                            <td>2800</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <div class="code-block text-sm mt-3">
+import pandas as pd
+
+# Agrupar por departamento y calcular estadísticas
+resultado = df.groupby('departamento')['salario'].agg(['mean', 'sum', 'count'])
+print(resultado)</div>
+                                
+                                <p class="font-semibold mt-4 mb-1">Resultado:</p>
+                                <table class="dataframe">
+                                    <thead>
+                                        <tr>
+                                            <th>departamento</th>
+                                            <th>mean</th>
+                                            <th>sum</th>
+                                            <th>count</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>IT</td>
+                                            <td>4650</td>
+                                            <td>9300</td>
+                                            <td>2</td>
+                                        </tr>
+                                        <tr>
+                                            <td>RRHH</td>
+                                            <td>3600</td>
+                                            <td>3600</td>
+                                            <td>1</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Ventas</td>
+                                            <td>3000</td>
+                                            <td>9000</td>
+                                            <td>3</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                `,
+                'groupby-operations': `
+                    <div class="pandas-visual">
+                        <h4 class="font-bold mb-2">Operaciones después de groupby()</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <p class="font-semibold">Funciones comunes:</p>
+                                <ul class="list-disc list-inside">
+                                    <li>mean() - promedio</li>
+                                    <li>sum() - suma</li>
+                                    <li>count() - recuento</li>
+                                    <li>min() - mínimo</li>
+                                    <li>max() - máximo</li>
+                                    <li>median() - mediana</li>
+                                    <li>std() - desviación estándar</li>
+                                    <li>var() - varianza</li>
+                                    <li>first() - primer valor</li>
+                                    <li>last() - último valor</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <p class="font-semibold">Ejemplo:</p>
+                                <div class="code-block text-sm">
+# Media por grupo
+df.groupby('categoría').mean()
+
+# Suma por grupo
+df.groupby('categoría').sum()
+
+# Múltiples estadísticas
+df.groupby('categoría').agg({
+    'ventas': ['sum', 'mean'],
+    'cantidad': 'count'
+})
+
+# Ordenar después de agrupar
+df.groupby('categoría')['ventas'].sum().sort_values()</div>
+                            </div>
+                        </div>
+                    </div>
+                `,
+                'pivot-table': `
+                    <div class="pandas-visual">
+                        <h4 class="font-bold mb-2">Ejemplo de pivot_table()</h4>
+                        <div>
+                            <p class="font-semibold mb-1">DataFrame original:</p>
+                            <table class="dataframe">
+                                <thead>
+                                    <tr>
+                                        <th>fecha</th>
+                                        <th>producto</th>
+                                        <th>región</th>
+                                        <th>ventas</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>2023-01-01</td>
+                                        <td>A</td>
+                                        <td>Norte</td>
+                                        <td>100</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2023-01-01</td>
+                                        <td>B</td>
+                                        <td>Norte</td>
+                                        <td>150</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2023-01-01</td>
+                                        <td>A</td>
+                                        <td>Sur</td>
+                                        <td>200</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2023-01-02</td>
+                                        <td>B</td>
+                                        <td>Norte</td>
+                                        <td>120</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2023-01-02</td>
+                                        <td>A</td>
+                                        <td>Sur</td>
+                                        <td>180</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2023-01-02</td>
+                                        <td>B</td>
+                                        <td>Sur</td>
+                                        <td>210</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            
+                            <div class="code-block text-sm mt-3">
+# Crear tabla dinámica: productos en filas, regiones en columnas
+tabla = pd.pivot_table(
+    df, 
+    values='ventas', 
+    index='producto', 
+    columns='región', 
+    aggfunc='sum'
+)
+print(tabla)</div>
+                            
+                            <p class="font-semibold mt-4 mb-1">Resultado del pivot_table:</p>
+                            <table class="dataframe">
+                                <thead>
+                                    <tr>
+                                        <th>región</th>
+                                        <th>Norte</th>
+                                        <th>Sur</th>
+                                    </tr>
+                                    <tr>
+                                        <th>producto</th>
+                                        <th></th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>A</td>
+                                        <td>100</td>
+                                        <td>380</td>
+                                    </tr>
+                                    <tr>
+                                        <td>B</td>
+                                        <td>270</td>
+                                        <td>210</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `,
+                'melt-example': `
+                    <div class="pandas-visual">
+                        <h4 class="font-bold mb-2">Ejemplo de melt() - Transformación de formato ancho a largo</h4>
+                        <div>
+                            <p class="font-semibold mb-1">DataFrame en formato ancho:</p>
+                            <table class="dataframe">
+                                <thead>
+                                    <tr>
+                                        <th>país</th>
+                                        <th>2020</th>
+                                        <th>2021</th>
+                                        <th>2022</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>España</td>
+                                        <td>10.5</td>
+                                        <td>11.2</td>
+                                        <td>11.8</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Francia</td>
+                                        <td>9.8</td>
+                                        <td>10.1</td>
+                                        <td>10.5</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Italia</td>
+                                        <td>8.7</td>
+                                        <td>9.3</td>
+                                        <td>9.6</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            
+                            <div class="code-block text-sm mt-3">
+# Transformar de formato ancho a formato largo
+df_largo = pd.melt(
+    df_ancho,
+    id_vars=['país'],
+    var_name='año',
+    value_name='valor'
+)
+print(df_largo)</div>
+                            
+                            <p class="font-semibold mt-4 mb-1">DataFrame transformado a formato largo:</p>
+                            <table class="dataframe">
+                                <thead>
+                                    <tr>
+                                        <th>país</th>
+                                        <th>año</th>
+                                        <th>valor</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>España</td>
+                                        <td>2020</td>
+                                        <td>10.5</td>
+                                    </tr>
+                                    <tr>
+                                        <td>España</td>
+                                        <td>2021</td>
+                                        <td>11.2</td>
+                                    </tr>
+                                    <tr>
+                                        <td>España</td>
+                                        <td>2022</td>
+                                        <td>11.8</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Francia</td>
+                                        <td>2020</td>
+                                        <td>9.8</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Francia</td>
+                                        <td>2021</td>
+                                        <td>10.1</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Francia</td>
+                                        <td>2022</td>
+                                        <td>10.5</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Italia</td>
+                                        <td>2020</td>
+                                        <td>8.7</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Italia</td>
+                                        <td>2021</td>
+                                        <td>9.3</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Italia</td>
+                                        <td>2022</td>
+                                        <td>9.6</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `,
+                'multiindex-example': `
+                    <div class="pandas-visual">
+                        <h4 class="font-bold mb-2">DataFrame con MultiIndex</h4>
+                        <div>
+                            <div class="code-block text-sm">
+import pandas as pd
+import numpy as np
+
+# Crear un DataFrame con MultiIndex
+arrays = [
+    ['Norte', 'Norte', 'Sur', 'Sur'],
+    ['2020', '2021', '2020', '2021']
+]
+index = pd.MultiIndex.from_arrays(arrays, names=['región', 'año'])
+df = pd.DataFrame({
+    'ventas': [100, 120, 90, 110],
+    'gastos': [80, 90, 70, 85]
+}, index=index)
+
+print(df)</div>
+                            
+                            <p class="font-semibold mt-4 mb-1">DataFrame resultante:</p>
+                            <table class="dataframe">
+                                <thead>
+                                    <tr>
+                                        <th>región</th>
+                                        <th>año</th>
+                                        <th>ventas</th>
+                                        <th>gastos</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td rowspan="2">Norte</td>
+                                        <td>2020</td>
+                                        <td>100</td>
+                                        <td>80</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2021</td>
+                                        <td>120</td>
+                                        <td>90</td>
+                                    </tr>
+                                    <tr>
+                                        <td rowspan="2">Sur</td>
+                                        <td>2020</td>
+                                        <td>90</td>
+                                        <td>70</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2021</td>
+                                        <td>110</td>
+                                        <td>85</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            
+                            <p class="text-sm mt-3">Con un MultiIndex, puedes realizar operaciones en diferentes niveles jerárquicos:</p>
+                            <div class="code-block text-sm">
+# Suma por región
+print(df.sum(level='región'))
+
+# Selección por nivel
+print(df.loc['Norte'])
+</div>
+                        </div>
+                    </div>
+                `,
+                'rolling-window': `
+                    <div class="pandas-visual">
+                        <h4 class="font-bold mb-2">Ejemplo de ventana deslizante (rolling window)</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <p class="font-semibold mb-1">Código:</p>
+                                <div class="code-block text-sm">
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Crear una serie temporal
+fechas = pd.date_range('2023-01-01', periods=10)
+valores = [100, 102, 104, 99, 101, 105, 108, 103, 106, 110]
+serie = pd.Series(valores, index=fechas)
+
+# Calcular promedio móvil de 3 días
+media_movil = serie.rolling(window=3).mean()
+
+print(serie)
+print("\nMedia móvil de 3 días:")
+print(media_movil)</div>
+                            </div>
+                            <div>
+                                <p class="font-semibold mb-1">Resultado:</p>
+                                <div class="code-block text-sm">
+2023-01-01    100
+2023-01-02    102
+2023-01-03    104
+2023-01-04     99
+2023-01-05    101
+2023-01-06    105
+2023-01-07    108
+2023-01-08    103
+2023-01-09    106
+2023-01-10    110
+Freq: D, dtype: int64
+
+Media móvil de 3 días:
+2023-01-01     NaN
+2023-01-02     NaN
+2023-01-03    102.0
+2023-01-04    101.7
+2023-01-05    101.3
+2023-01-06    101.7
+2023-01-07    104.7
+2023-01-08    105.3
+2023-01-09    105.7
+2023-01-10    106.3
+Freq: D, dtype: float64</div>
+                                <div class="mt-3 text-sm text-gray-600">
+                                    Cada valor es el promedio de la ventana actual y los 2 valores anteriores.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `,
+                'agg-example': `
+                    <div class="pandas-visual">
+                        <h4 class="font-bold mb-2">Ejemplo de agg() con diferentes funciones por columna</h4>
+                        <div>
+                            <p class="font-semibold mb-1">DataFrame original:</p>
+                            <table class="dataframe">
+                                <thead>
+                                    <tr>
+                                        <th>producto</th>
+                                        <th>categoría</th>
+                                        <th>precio</th>
+                                        <th>unidades</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>A</td>
+                                        <td>Electrónica</td>
+                                        <td>100</td>
+                                        <td>10</td>
+                                    </tr>
+                                    <tr>
+                                        <td>B</td>
+                                        <td>Ropa</td>
+                                        <td>25</td>
+                                        <td>50</td>
+                                    </tr>
+                                    <tr>
+                                        <td>C</td>
+                                        <td>Electrónica</td>
+                                        <td>200</td>
+                                        <td>5</td>
+                                    </tr>
+                                    <tr>
+                                        <td>D</td>
+                                        <td>Ropa</td>
+                                        <td>30</td>
+                                        <td>40</td>
+                                    </tr>
+                                    <tr>
+                                        <td>E</td>
+                                        <td>Hogar</td>
+                                        <td>45</td>
+                                        <td>20</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            
+                            <div class="code-block text-sm mt-3">
+# Aplicar diferentes funciones de agregación a diferentes columnas
+resultado = df.groupby('categoría').agg({
+    'precio': ['mean', 'max'],
+    'unidades': ['sum', 'count']
+})
+print(resultado)</div>
+                            
+                            <p class="font-semibold mt-4 mb-1">Resultado:</p>
+                            <table class="dataframe">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th colspan="2">precio</th>
+                                        <th colspan="2">unidades</th>
+                                    </tr>
+                                    <tr>
+                                        <th></th>
+                                        <th>mean</th>
+                                        <th>max</th>
+                                        <th>sum</th>
+                                        <th>count</th>
+                                    </tr>
+                                    <tr>
+                                        <th>categoría</th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Electrónica</td>
+                                        <td>150.0</td>
+                                        <td>200</td>
+                                        <td>15</td>
+                                        <td>2</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Hogar</td>
+                                        <td>45.0</td>
+                                        <td>45</td>
+                                        <td>20</td>
+                                        <td>1</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Ropa</td>
+                                        <td>27.5</td>
+                                        <td>30</td>
+                                        <td>90</td>
+                                        <td>2</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `
+            };
+
+            // Functions
+            function startQuiz() {
+                introSection.classList.add('hidden');
+                quizContainer.classList.remove('hidden');
+                
+                // Shuffle questions array
+                shuffleArray(questions);
+                
+                renderQuestion();
+                updateProgress();
+            }
+
+            function renderQuestion() {
+                const question = questions[currentQuestionIndex];
+                
+                const questionHTML = createQuestionHTML(question);
+                questionsContainer.innerHTML = questionHTML;
+                
+                // Add event listeners to options
+                const options = document.querySelectorAll('.question-option');
+                options.forEach((option, index) => {
+                    option.addEventListener('click', () => selectOption(index));
+                });
+                
+                // Update progress display
+                questionNumberElement.textContent = currentQuestionIndex + 1;
+                updateProgress();
+            }
+
+            function createQuestionHTML(question) {
+                const difficultyClass = getDifficultyClass(question.difficulty);
+                const difficultyText = getDifficultyText(question.difficulty);
+                const pointsText = question.points > 1 ? `${question.points} puntos` : `${question.points} punto`;
+                
+                let visualHTML = '';
+                if (question.visual && dataframeVisuals[question.visual]) {
+                    visualHTML = dataframeVisuals[question.visual];
+                }
+                
+                let codeHTML = '';
+                if (question.code) {
+                    codeHTML = `
+                        <div class="code-block text-sm my-4">
+                            ${question.code}
+                        </div>
+                    `;
+                }
+                
+                let optionsHTML = '';
+                question.options.forEach((option, index) => {
+                    optionsHTML += `
+                        <div class="question-option option-hover p-3 rounded-md mb-2 cursor-pointer border border-gray-200" data-index="${index}">
+                            <div class="flex items-center">
+                                <span class="text-sm font-medium bg-gray-200 text-gray-700 w-6 h-6 rounded-full flex items-center justify-center mr-3">${String.fromCharCode(65 + index)}</span>
+                                <span>${option}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                return `
+                    <div class="question-container bg-white rounded-lg shadow-md p-6 mb-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${difficultyClass} text-white">
+                                ${difficultyText}
+                            </span>
+                            <span class="font-medium text-gray-600">${pointsText}</span>
+                        </div>
+                        
+                        <h3 class="text-xl font-semibold mb-4">${question.question}</h3>
+                        
+                        ${codeHTML}
+                        ${visualHTML}
+                        
+                        <div class="options-container mt-4">
+                            ${optionsHTML}
+                        </div>
+                        
+                        <div class="explanation-container hidden mt-6 p-4 bg-blue-50 rounded-md">
+                            <h4 class="font-bold text-blue-800 mb-2">Explicación:</h4>
+                            <p class="explanation-text"></p>
+                        </div>
+                    </div>
+                `;
+            }
+
+            function selectOption(optionIndex) {
+                const question = questions[currentQuestionIndex];
+                const selectedOption = document.querySelector(`.question-option[data-index="${optionIndex}"]`);
+                const allOptions = document.querySelectorAll('.question-option');
+                const correctOption = document.querySelector(`.question-option[data-index="${question.correctAnswer}"]`);
+                const explanationContainer = document.querySelector('.explanation-container');
+                const explanationText = document.querySelector('.explanation-text');
+                
+                // Disable further selections
+                allOptions.forEach(option => {
+                    option.classList.remove('option-hover');
+                    option.style.pointerEvents = 'none';
+                });
+                
+                // Apply correct/incorrect styling
+                if (optionIndex === question.correctAnswer) {
+                    selectedOption.classList.add('option-correct');
+                    
+                    // Add points to the score
+                    score += question.points;
+                    updateScore();
+                    
+                    // Add points to category scores
+                    if (question.difficulty === 'basic') {
+                        scoreByCategoryBasic += question.points;
+                    } else if (question.difficulty === 'intermediate') {
+                        scoreByCategoryIntermediate += question.points;
+                    } else if (question.difficulty === 'advanced') {
+                        scoreByCategoryAdvanced += question.points;
+                    }
+                } else {
+                    selectedOption.classList.add('option-incorrect');
+                    correctOption.classList.add('option-correct');
+                }
+                
+                // Show explanation
+                explanationText.innerHTML = question.explanation;
+                explanationContainer.classList.remove('hidden');
+                explanationContainer.classList.add('fade-in');
+                
+                // Record user's answer
+                userAnswers.push({
+                    questionId: question.id,
+                    selectedOption: optionIndex,
+                    isCorrect: optionIndex === question.correctAnswer
+                });
+                
+                // Go to next question after a delay
+                setTimeout(() => {
+                    if (currentQuestionIndex < questions.length - 1) {
+                        currentQuestionIndex++;
+                        renderQuestion();
+                    } else {
+                        showResults();
+                    }
+                }, 2000);
+            }
+
+            function updateScore() {
+                scoreDisplay.textContent = score.toFixed(1);
+            }
+
+            function updateProgress() {
+                const progressPercentage = ((currentQuestionIndex + 1) / questions.length) * 100;
+                progressElement.style.width = `${progressPercentage}%`;
+            }
+
+            function showResults() {
+                quizContainer.classList.add('hidden');
+                resultSection.classList.remove('hidden');
+                
+                // Update scores
+                finalScore.textContent = score.toFixed(1);
+                basicScore.textContent = scoreByCategoryBasic.toFixed(1);
+                intermediateScore.textContent = scoreByCategoryIntermediate.toFixed(1);
+                advancedScore.textContent = scoreByCategoryAdvanced.toFixed(1);
+                
+                // Performance feedback
+                const percentage = (score / 50) * 100;
+                let feedbackText = "";
+                
+                if (percentage >= 90) {
+                    feedbackText = "¡Excelente trabajo! Tienes un dominio excepcional de Python y Pandas. Puedes manejar tareas avanzadas de manipulación de datos con confianza.";
+                } else if (percentage >= 70) {
+                    feedbackText = "¡Muy bien! Tienes un buen conocimiento de Python y Pandas. Continúa practicando con casos más complejos para fortalecer tus habilidades.";
+                } else if (percentage >= 50) {
+                    feedbackText = "Buen esfuerzo. Tienes una base sólida en Python y Pandas, pero hay áreas específicas donde puedes mejorar. Repasa los conceptos más avanzados.";
+                } else {
+                    feedbackText = "Has comenzado tu camino con Python y Pandas. Recomendamos revisar los conceptos básicos y practicar más ejemplos antes de avanzar a temas complejos.";
+                }
+                
+                performanceFeedback.textContent = feedbackText;
+            }
+
+            function reviewAnswers() {
+                resultSection.classList.add('hidden');
+                quizContainer.classList.remove('hidden');
+                
+                // Restore original question order by sorting by ID
+                questions.sort((a, b) => a.id - b.id);
+                
+                // Prepare all questions for review
+                let allQuestionsHTML = '';
+                
+                questions.forEach((question, index) => {
+                    const userAnswer = userAnswers.find(answer => answer.questionId === question.id);
+                    const isCorrect = userAnswer && userAnswer.isCorrect;
+                    const selectedOption = userAnswer ? userAnswer.selectedOption : -1;
+                    
+                    const difficultyClass = getDifficultyClass(question.difficulty);
+                    const difficultyText = getDifficultyText(question.difficulty);
+                    const pointsText = question.points > 1 ? `${question.points} puntos` : `${question.points} punto`;
+                    
+                    let visualHTML = '';
+                    if (question.visual && dataframeVisuals[question.visual]) {
+                        visualHTML = dataframeVisuals[question.visual];
+                    }
+                    
+                    let codeHTML = '';
+                    if (question.code) {
+                        codeHTML = `
+                            <div class="code-block text-sm my-4">
+                                ${question.code}
+                            </div>
+                        `;
+                    }
+                    
+                    let optionsHTML = '';
+                    question.options.forEach((option, optIndex) => {
+                        let optionClass = '';
+                        if (optIndex === selectedOption && optIndex === question.correctAnswer) {
+                            optionClass = 'option-correct';
+                        } else if (optIndex === selectedOption) {
+                            optionClass = 'option-incorrect';
+                        } else if (optIndex === question.correctAnswer) {
+                            optionClass = 'option-correct';
+                        }
+                        
+                        optionsHTML += `
+                            <div class="p-3 rounded-md mb-2 border border-gray-200 ${optionClass}">
+                                <div class="flex items-center">
+                                    <span class="text-sm font-medium bg-gray-200 text-gray-700 w-6 h-6 rounded-full flex items-center justify-center mr-3">${String.fromCharCode(65 + optIndex)}</span>
+                                    <span>${option}</span>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    allQuestionsHTML += `
+                        <div class="question-container bg-white rounded-lg shadow-md p-6 mb-6" id="question-${question.id}">
+                            <div class="flex justify-between items-center mb-4">
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${difficultyClass} text-white">
+                                    ${difficultyText}
+                                </span>
+                                <div>
+                                    <span class="font-medium text-gray-600 mr-3">Pregunta ${question.id}</span>
+                                    <span class="font-medium text-gray-600">${pointsText}</span>
+                                </div>
+                            </div>
+                            
+                            <h3 class="text-xl font-semibold mb-4">${question.question}</h3>
+                            
+                            ${codeHTML}
+                            ${visualHTML}
+                            
+                            <div class="options-container mt-4">
+                                ${optionsHTML}
+                            </div>
+                            
+                            <div class="mt-6 p-4 bg-blue-50 rounded-md">
+                                <h4 class="font-bold text-blue-800 mb-2">Explicación:</h4>
+                                <p>${question.explanation}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                questionsContainer.innerHTML = allQuestionsHTML;
+                document.querySelector('.fixed').classList.add('hidden');
+            }
+
+            function showDifficultyFilter() {
+                const filters = ['Todas', 'Básicas', 'Intermedias', 'Avanzadas'];
+                const filterModal = document.createElement('div');
+                
+                filterModal.className = 'fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50';
+                filterModal.innerHTML = `
+                    <div class="bg-white rounded-lg p-6 w-80">
+                        <h3 class="text-lg font-bold mb-4">Filtrar por dificultad</h3>
+                        <div class="space-y-2">
+                            ${filters.map((filter, index) => `
+                                <div class="filter-option cursor-pointer hover:bg-gray-100 p-3 rounded-md">
+                                    <div class="flex items-center">
+                                        <span data-filter="${index === 0 ? 'all' : index === 1 ? 'basic' : index === 2 ? 'intermediate' : 'advanced'}">${filter}</span>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="mt-4 text-right">
+                            <button id="close-filter" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded">
+                                Cerrar
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                document.body.appendChild(filterModal);
+                
+                // Event listeners
+                document.querySelectorAll('.filter-option').forEach(option => {
+                    option.addEventListener('click', (e) => {
+                        const filterValue = e.target.closest('.filter-option').querySelector('span').dataset.filter;
+                        applyFilter(filterValue);
+                        document.body.removeChild(filterModal);
+                    });
+                });
+                
+                document.getElementById('close-filter').addEventListener('click', () => {
+                    document.body.removeChild(filterModal);
+                });
+            }
+
+            function applyFilter(filter) {
+                // Check if we're in review mode
+                if (document.querySelector('.fixed').classList.contains('hidden')) {
+                    const allQuestions = document.querySelectorAll('.question-container');
+                    
+                    allQuestions.forEach(questionEl => {
+                        const questionId = parseInt(questionEl.id.split('-')[1]);
+                        const question = questions.find(q => q.id === questionId);
+                        
+                        if (filter === 'all' || question.difficulty === filter) {
+                            questionEl.classList.remove('hidden');
+                        } else {
+                            questionEl.classList.add('hidden');
+                        }
+                    });
+                }
+            }
+
+            function restartQuiz() {
+                // Reset all variables
+                currentQuestionIndex = 0;
+                score = 0;
+                userAnswers = [];
+                scoreByCategoryBasic = 0;
+                scoreByCategoryIntermediate = 0;
+                scoreByCategoryAdvanced = 0;
+                
+                // Shuffle questions again
+                shuffleArray(questions);
+                
+                // Reset UI
+                document.querySelector('.fixed').classList.remove('hidden');
+                resultSection.classList.add('hidden');
+                quizContainer.classList.remove('hidden');
+                
+                // Start the quiz again
+                renderQuestion();
+                updateProgress();
+                updateScore();
+            }
+
+            // Helper functions
+            function shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+            }
+
+            function getDifficultyClass(difficulty) {
+                switch (difficulty) {
+                    case 'basic':
+                        return 'difficulty-badge-basic';
+                    case 'intermediate':
+                        return 'difficulty-badge-intermediate';
+                    case 'advanced':
+                        return 'difficulty-badge-advanced';
+                    default:
+                        return '';
+                }
+            }
+
+            function getDifficultyText(difficulty) {
+                switch (difficulty) {
+                    case 'basic':
+                        return 'Nivel Básico';
+                    case 'intermediate':
+                        return 'Nivel Intermedio';
+                    case 'advanced':
+                        return 'Nivel Avanzado';
+                    default:
+                        return '';
+                }
+            }
+        });
+    </script>
+</body>
+</html>
